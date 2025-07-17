@@ -1,0 +1,251 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f8f8f8;
+  color: #222;
+}
+
+header {
+  background: #2d3e50;
+  color: #fff;
+  padding: 1.5rem 0 1rem 0;
+  text-align: center;
+  border-bottom: 4px solid #4a90e2;
+}
+
+#event-date {
+  font-size: 1.1rem;
+  margin-top: 0.5rem;
+}
+
+main#scoreboard {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 2rem 2vw 1rem 2vw;
+  gap: 0.2vw;
+  max-width: 1600px;
+  margin: 0 auto;
+  position: relative;
+}
+
+#board-scores-label {
+  position: absolute;
+  top: 2.2em; /* Adjust as needed to align with the h2 line */
+  left: 60%;  /* Adjust as needed to visually center over the board scores table */
+  transform: translateX(-50%);
+  font-size: 1.3em;
+  font-family: inherit;
+  font-weight: bold;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+section#score-entry, section#board-scores {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 1rem;
+}
+
+section#score-entry {
+  min-width: 340px;
+  flex: 0 0 340px;
+}
+
+section#board-scores {
+  flex: 1 1 0;
+  overflow-x: auto;
+  margin-top: 5.8em; /* Increased to move Board Scores down further */
+}
+
+/* Board Scores Table */
+section#board-scores table {
+  font-family: Consolas, Menlo, Monaco, monospace;
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  font-size: 1em;
+}
+section#board-scores th,
+section#board-scores td {
+  text-align: center;
+  padding: 0 0.2ch;
+  min-width: 2ch;
+  font-size: 0.99em;
+  letter-spacing: 0;
+  height: 2.0em;
+  vertical-align: middle;
+}
+section#board-scores th {
+  background: #e9eef5;
+}
+section#board-scores td {
+  background: #f7fafd;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+section#standings {
+  background: #fff;
+  margin: 2rem auto 0 auto;
+  max-width: 900px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 1.5rem 2vw;
+  font-size: 1.1rem;
+}
+
+footer {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1.5rem 0 2rem 0;
+  background: #f0f4f8;
+  border-top: 2px solid #e0e0e0;
+}
+
+button {
+  background: #4a90e2;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+button:hover {
+  background: #357ab8;
+}
+
+/* Score Entry Label Row */
+.score-label-row {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.25em; /* Much tighter gap between labels */
+  margin-bottom: 0.2em;
+  margin-left: -0.2em; /* aligning '0' w first col of radio buttons */
+  font-size: 1em;
+  height: 2.1em;
+}
+.score-label {
+  display: inline-block;
+  width: 2em;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1em;
+}
+.team-label {
+  display: inline-block;
+  width: 4em;
+  text-align: left;
+  margin-left: 0.5em;
+  font-weight: bold;
+}
+.team-num-label {
+  display: inline-block;
+  width: 2em;
+  text-align: right;
+  margin-left: 1em;
+  font-weight: bold;
+}
+.team-dropdown {
+  margin-left: 0.5em;
+  font-size: 1em;
+  padding: 0.1em 0.3em;
+}
+
+.score-row {
+  display: flex;
+  align-items: center;
+  gap: 1.1em;
+  margin-bottom: 0;
+  margin-left: 0.2em;
+  font-family: Consolas, Menlo, Monaco, monospace;
+  height: 2.1em;
+}
+.score-row input[type="radio"] {
+  margin: 0 0.2em;
+  transform: scale(1.2);
+}
+.board-num-group {
+  display: inline-flex;
+  align-items: center;
+  width: 4em; /* Fixed width for # and two digits */
+  justify-content: center;
+  font-family: Consolas, Menlo, Monaco, monospace;
+}
+.mono-board-num {
+  display: inline-block;
+  width: 2.2em; /* Enough for # and two digits */
+  text-align: right;
+  font-family: inherit;
+  font-size: 1.1em;
+  margin-right: 0.2em;
+}
+.board-spinner {
+  display: inline-flex;
+  flex-direction: column;
+  margin-left: 0.1em;
+  vertical-align: middle;
+}
+.board-spinner button {
+  font-size: 0.8em;
+  padding: 0.1em 0.4em;
+  margin: 0;
+  background: #e9eef5;
+  color: #222;
+  border: 1px solid #b0b0b0;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: 1.6em;
+  height: 1.1em;
+  line-height: 1em;
+}
+.board-spinner button:hover {
+  background: #b3d1f7;
+}
+@media (max-width: 900px) {
+  main#scoreboard {
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1rem 1vw;
+  }
+  section#standings {
+    padding: 1rem 1vw;
+  }
+  #board-scores-label {
+    font-size: 1em;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+#settings-btn {
+  margin-left: 0.5rem;
+}
+#save-as {
+  margin-right: 0.5rem;
+}
+
+/* Settings Modal (reuse modal style for consistency) */
+#settings-modal {
+  display: flex;
+}
+#settings-modal > div {
+  /* Already styled inline, but reinforce here for consistency */
+  background: #fff;
+  padding: 2em;
+  border-radius: 8px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.2);
+  min-width: 300px;
+  max-width: 90vw;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+} 

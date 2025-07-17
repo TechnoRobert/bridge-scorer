@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bob's Bridge Scorer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Title and Date -->
+  <header>
+    <h1 style="display: flex; align-items: center; justify-content: center; gap: 1rem;">
+      <img src="club.png" alt="Club" style="width: 48px; height: 48px;">
+      Bob's Bridge Scorer
+      <img src="club.png" alt="Club" style="width: 48px; height: 48px;">
+    </h1>
+    <div id="event-date"></div>
+  </header>
+
+  <!-- Main Scoreboard Area -->
+  <main id="scoreboard">
+    <!-- Score Entry Section -->
+    <section id="score-entry">
+      <h2 style="display: flex; align-items: center; gap: 0.1em; position: relative; min-height: 2.5em;">
+        Board
+        <span class="board-num-group">
+          #<span id="board-num" class="mono-board-num">01</span>
+          <span class="board-spinner">
+            <button id="board-up" title="Next board">&#9650;</button>
+            <button id="board-down" title="Previous board">&#9660;</button>
+          </span>
+        </span>
+        <input type="range" id="board-slider" min="1" max="20" value="1" style="vertical-align: middle; width: 120px; margin-left: 1em;">
+      </h2>
+      <!-- The rest of the score entry UI will be rendered here by JS -->
+    </section>
+    <!-- Board Scores Label, visually centered over the board scores table -->
+    <span id="board-scores-label">Board Scores</span>
+    <!-- Board Scores Section -->
+    <section id="board-scores">
+      <!-- Table/grid of scores for each team and board will go here -->
+    </section>
+  </main>
+
+  <!-- Standings Section -->
+  <section id="standings">
+    <!-- Table of standings, updated live -->
+  </section>
+
+  <!-- Guest Name Modal -->
+  <div id="guest-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#fff; padding:2em; border-radius:8px; box-shadow:0 2px 16px rgba(0,0,0,0.2); min-width:300px; max-width:90vw; margin:auto; display:flex; flex-direction:column; align-items:center;">
+      <label for="guest-name-input" style="font-size:1.1em; margin-bottom:0.5em;">Enter Guest Team Name:</label>
+      <input id="guest-name-input" type="text" maxlength="32" style="font-size:1.1em; padding:0.3em; width:90%; margin-bottom:1em;" />
+      <div style="display:flex; gap:1em;">
+        <button id="guest-modal-ok">OK</button>
+        <button id="guest-modal-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer Controls -->
+  <footer>
+    <button id="toggle-pairings">Show Pairings</button>
+    <button id="export">Export</button>
+    <button id="open">Open</button>
+    <button id="save">Save</button>
+    <button id="save-as">Save As...</button>
+    <button id="settings-btn">Settings</button>
+  </footer>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#fff; padding:2em; border-radius:8px; box-shadow:0 2px 16px rgba(0,0,0,0.2); min-width:300px; max-width:90vw; margin:auto; display:flex; flex-direction:column; align-items:center;">
+      <h2 style="margin-top:0;">Settings</h2>
+      <label style="font-size:1.1em; margin-bottom:1em;">
+        <input type="checkbox" id="error-check-toggle" checked style="margin-right:0.5em; transform: scale(1.2);">
+        Enable Error Checking
+      </label>
+      <div style="display:flex; gap:1em; margin-top:1.5em;">
+        <button id="settings-modal-ok">OK</button>
+        <button id="settings-modal-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html> 
