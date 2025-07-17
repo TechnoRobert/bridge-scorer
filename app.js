@@ -515,7 +515,7 @@ function validateBridgeScores(boardScores) {
   const SCORE_MAP = { '0': 0, 'x': 0.5, '1': 1, '1x': 1.5, '2': 2 };
   const nums = boardScores.map(val => SCORE_MAP[val] ?? NaN);
   if (nums.some(isNaN)) return 'All teams must have a valid score.\n\nPlease re-score the board.';
-  
+
   // Pairings for this board
   const boardPairings = getBoardPairings()[currentBoardNum - 1];
   for (let i = 0; i < boardPairings.length; i++) {
@@ -523,7 +523,7 @@ function validateBridgeScores(boardScores) {
     const sum = nums[a - 1] + nums[b - 1];
     if (Math.abs(sum - 2.0) > 0.001) return `The scores of\nTeams ${a} and ${b} must total 2.0.\n\nPlease re-score the board.`;
   }
-  
+
   // NS/EW totals: for each pairing, first team is NS, second is EW
   let nsTotal = 0, ewTotal = 0;
   for (let i = 0; i < boardPairings.length; i++) {
@@ -534,10 +534,10 @@ function validateBridgeScores(boardScores) {
   if (Math.abs(nsTotal - 3.0) > 0.001 || Math.abs(ewTotal - 3.0) > 0.001) {
     return `Pair-scores are incorrect.\nTotal for all N/S's is ${nsTotal}.\nTotal for all E/W's is ${ewTotal}.\nEach direction should have three points.\n\nPlease re-score the board.`;
   }
-  
+
   // Board total (check this last since it's more generic)
   const total = nums.reduce((a, b) => a + b, 0);
   if (Math.abs(total - 6.0) > 0.001) return 'Board total is incorrect.\nIt must be exactly 6.0.\n\nPlease re-score the board.';
-  
+
   return null; // valid
-} 
+}
