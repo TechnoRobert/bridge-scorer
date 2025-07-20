@@ -403,20 +403,24 @@ function setupPairingsToggle() {
 function setEventDate() {
   const eventDateDiv = document.getElementById('event-date');
   if (eventDateDiv) {
-    const now = new Date();
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    const day = days[now.getDay()];
-    const month = months[now.getMonth()];
-    const date = now.getDate();
-    const year = now.getFullYear();
-    eventDateDiv.textContent = `${day}, ${month} ${date}, ${year}`;
+    if (loadedEventDate) {
+      eventDateDiv.textContent = loadedEventDate;
+    } else {
+      const now = new Date();
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      const day = days[now.getDay()];
+      const month = months[now.getMonth()];
+      const date = now.getDate();
+      const year = now.getFullYear();
+      eventDateDiv.textContent = `${day}, ${month} ${date}, ${year}`;
+    }
   }
 }
 
 // Initial render
-setEventDate();
-renderAll();
+// setEventDate(); // Removed top-level call
+// renderAll(); // Removed top-level call
 
 // --- Settings Modal Logic ---
 const settingsBtn = document.getElementById('settings-btn');
@@ -541,3 +545,134 @@ function validateBridgeScores(boardScores) {
 
   return null; // valid
 }
+
+// --- Save/Open Logic ---
+let lastFileHandle = null;
+let loadedEventDate = null;
+
+function getTodayString() {
+  if (loadedEventDate) return loadedEventDate;
+  const now = new Date();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  const yyyy = now.getFullYear();
+  return `${mm}/${dd}/${yyyy}`;
+}
+
+function setEventDateDisplay(dateStr) {
+  const eventDateDiv = document.getElementById('event-date');
+  if (eventDateDiv) eventDateDiv.textContent = dateStr;
+}
+
+function getSaveText() {
+  // Line 1: date
+  let lines = [getTodayString()];
+  // Lines 2-7: team names
+  for (let i = 0; i < NUM_TEAMS; i++) lines.push(teamNames[i] || '');
+  // Lines 8-27: board numbers 1-20
+  for (let i = 1; i <= NUM_BOARDS; i++) lines.push(String(i));
+  // Lines 28-147: scores for each team, 20 lines per team
+  for (let t = 0; t < NUM_TEAMS; t++) {
+    for (let b = 0; b < NUM_BOARDS; b++) {
+      let val = scores[b][t];
+      lines.push(val === undefined ? '' : val);
+    }
+  }
+  return lines.join('\n');
+}
+
+async function saveAsFile() {
+  console.log('Save As... button clicked');
+  let defaultName = `Bridge scores ${getTodayString().replace(/\//g, '-')}.txt`;
+  if (window.showSaveFilePicker) {
+    // File System Access API
+    const handle = await window.showSaveFilePicker({
+      suggestedName: defaultName,
+      types: [{ description: 'Text Files', accept: { 'text/plain': ['.txt'] } }]
+    });
+    lastFileHandle = handle;
+    const writable = await handle.createWritable();
+    await writable.write(getSaveText());
+    await writable.close();
+  } else {
+    // Fallback: download
+    const blob = new Blob([getSaveText()], { type: 'text/plain' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = defaultName;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { document.body.removeChild(a); }, 100);
+    lastFileHandle = null; // can't overwrite
+  }
+}
+
+async function saveFile() {
+  console.log('Save button clicked');
+  if (lastFileHandle && window.showSaveFilePicker) {
+    const writable = await lastFileHandle.createWritable();
+    await writable.write(getSaveText());
+    await writable.close();
+  } else {
+    await saveAsFile();
+  }
+}
+
+function parseLegacyFile(text) {
+  const lines = text.split(/\r?\n/);
+  if (lines.length < 146) throw new Error('File too short.');
+  if (lines.length === 146) lines.push(''); // pad if last line has no newline
+  // Date
+  loadedEventDate = lines[0] || null;
+  setEventDateDisplay(loadedEventDate || getTodayString());
+  // Team names
+  let fileTeamNames = [];
+  for (let i = 0; i < NUM_TEAMS; i++) fileTeamNames.push(lines[1 + i] || '');
+  // Add any new team names to dropdowns (and guestNames if not in TEAM_NAMES)
+  guestNames = [];
+  for (let name of fileTeamNames) {
+    if (name && !TEAM_NAMES.includes(name) && !guestNames.includes(name)) {
+      guestNames.push(name);
+    }
+  }
+  guestNames.sort((a, b) => a.localeCompare(b));
+  for (let i = 0; i < NUM_TEAMS; i++) teamNames[i] = fileTeamNames[i];
+  // Board numbers (lines 7-26) are ignored
+  // Scores
+  let idx = 27;
+  for (let t = 0; t < NUM_TEAMS; t++) {
+    for (let b = 0; b < NUM_BOARDS; b++) {
+      scores[b][t] = lines[idx++] || '';
+    }
+  }
+}
+
+function openFile() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.txt,text/plain';
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      try {
+        parseLegacyFile(evt.target.result);
+        renderAll();
+      } catch (err) {
+        showErrorModal('Failed to open file.\n' + err.message);
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+// --- Attach Save/Open listeners after DOM is loaded ---
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('save').addEventListener('click', saveFile);
+  document.getElementById('save-as').addEventListener('click', saveAsFile);
+  document.getElementById('open').addEventListener('click', openFile);
+  setEventDate();
+  renderAll();
+}); 
