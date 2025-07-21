@@ -681,18 +681,31 @@ function openFile() {
         parseLegacyFile(evt.target.result);
         renderAll();
       } catch (err) {
-        showErrorModal('Failed to open file.\n' + err.message);
+        const lines = evt.target.result.split(/\r?\n/);
+        showErrorModal('Failed to open file.\n' + err.message + `\n(Line count: ${lines.length})`);
       }
+      input.value = '';
     };
     reader.readAsText(file);
   };
   input.click();
 }
 
-// --- Attach Save/Open listeners after DOM is loaded ---
+// --- Download Logic ---
+function downloadFile() {
+  let defaultName = `Bridge scores ${getTodayString().replace(/\//g, '-')}.txt`;
+  const blob = new Blob([getSaveText()], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = defaultName;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { document.body.removeChild(a); }, 100);
+}
+
+// --- Attach Download/Open listeners after DOM is loaded ---
 window.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('save').addEventListener('click', saveFile);
-  document.getElementById('save-as').addEventListener('click', saveAsFile);
+  document.getElementById('download').addEventListener('click', downloadFile);
   document.getElementById('open').addEventListener('click', openFile);
   setEventDate();
   renderAll();
