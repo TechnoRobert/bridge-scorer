@@ -559,9 +559,24 @@ function getTodayString() {
   return `${mm}/${dd}/${yyyy}`;
 }
 
+function formatLongDate(dateStr) {
+  // Expects mm/dd/yyyy
+  const [mm, dd, yyyy] = dateStr.split('/').map(Number);
+  const d = new Date(yyyy, mm - 1, dd);
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  return `${days[d.getDay()]}, ${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+}
+
 function setEventDateDisplay(dateStr) {
   const eventDateDiv = document.getElementById('event-date');
-  if (eventDateDiv) eventDateDiv.textContent = dateStr;
+  if (eventDateDiv) {
+    if (dateStr && dateStr.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+      eventDateDiv.textContent = formatLongDate(dateStr);
+    } else {
+      eventDateDiv.textContent = dateStr;
+    }
+  }
 }
 
 function getSaveText() {
@@ -575,10 +590,13 @@ function getSaveText() {
   for (let t = 0; t < NUM_TEAMS; t++) {
     for (let b = 0; b < NUM_BOARDS; b++) {
       let val = scores[b][t];
+      // Convert 'x' to 0.5 and '1x' to 1.5 for file output
+      if (val === 'x') val = '0.5';
+      if (val === '1x') val = '1.5';
       lines.push(val === undefined ? '' : val);
     }
   }
-  return lines.join('\n');
+  return lines.join('\r\n');
 }
 
 async function saveAsFile() {
@@ -619,9 +637,8 @@ async function saveFile() {
 }
 
 function parseLegacyFile(text) {
-  const lines = text.split(/\r?\n/);
-  if (lines.length < 146) throw new Error('File too short.');
-  if (lines.length === 146) lines.push(''); // pad if last line has no newline
+  let lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
+  if (lines.length < 147) throw new Error('File too short.');
   // Date
   loadedEventDate = lines[0] || null;
   setEventDateDisplay(loadedEventDate || getTodayString());
@@ -642,7 +659,11 @@ function parseLegacyFile(text) {
   let idx = 27;
   for (let t = 0; t < NUM_TEAMS; t++) {
     for (let b = 0; b < NUM_BOARDS; b++) {
-      scores[b][t] = lines[idx++] || '';
+      let val = lines[idx++] || '';
+      // Convert 0.5 to 'x' and 1.5 to '1x' for display
+      if (val === '0.5') val = 'x';
+      if (val === '1.5') val = '1x';
+      scores[b][t] = val;
     }
   }
 }
