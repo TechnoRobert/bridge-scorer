@@ -18,10 +18,7 @@ let showPairings = false;
 // Error checking toggle (default: enabled)
 let errorCheckingEnabled = true;
 
-// Helper function to convert double ampersands to single ampersands
-function convertAmpersands(name) {
-  return name ? name.replace(/&&/g, '&') : name;
-}
+
 
 // Pairings mapping: for each board, an array of [teamA, teamB, colorClass]
 const PAIRING_COLORS = [
@@ -32,8 +29,8 @@ const HOST_COLOR = '#d1e7dd'; // Team 6 color (subtle green)
 
 function getAllTeamNames() {
   // Merge and alphabetize, keep 'Guests' last
-  const baseNames = TEAM_NAMES.filter(n => n !== 'Guests').map(convertAmpersands);
-  const all = baseNames.concat(guestNames.map(convertAmpersands)).sort((a, b) => a.localeCompare(b));
+  const baseNames = TEAM_NAMES.filter(n => n !== 'Guests');
+  const all = baseNames.concat(guestNames).sort((a, b) => a.localeCompare(b));
   all.push('Guests');
   return all;
 }
@@ -98,7 +95,7 @@ function renderScoreEntry(boardNum = 1) {
       row += `<input type="radio" name="team${i}-score" value="${label}">`;
     });
     let options = `<option value="">Team #${i + 1}</option>` +
-      allNames.map(name => `<option value="${name}"${convertAmpersands(teamNames[i]) === name ? ' selected' : ''}>${name}</option>`).join('');
+      allNames.map(name => `<option value="${name}"${teamNames[i] === name ? ' selected' : ''}>${name}</option>`).join('');
     row += `<span class="team-num-label">#${i + 1}</span>`;
     row += `<select class="team-dropdown" id="team${i + 1}-dropdown">${options}</select>`;
     row += `</div>`;
@@ -161,7 +158,7 @@ function calculateStandings() {
       }
     }
     let percentage = boardsScored > 0 ? Math.round((total / (2 * boardsScored)) * 100) : 0;
-    teamTotals.push({ team: t + 1, name: convertAmpersands(teamNames[t]), total, percentage });
+    teamTotals.push({ team: t + 1, name: teamNames[t], total, percentage });
   }
   // Sort by total descending
   teamTotals.sort((a, b) => b.total - a.total);
@@ -222,7 +219,7 @@ function renderStandings() {
   if (allZero) {
     html += '<div style="display:flex; flex-direction:column; align-items:center; margin-top:1em;">';
     for (let t = 0; t < NUM_TEAMS; t++) {
-      let name = convertAmpersands(teamNames[t]) || `Team #${t + 1}`;
+      let name = teamNames[t] || `Team #${t + 1}`;
       html += `<div style="margin:0.2em 0; font-size:1.1em;">${name}</div>`;
     }
     html += '</div>';
@@ -321,7 +318,7 @@ function setupTeamDropdownListeners() {
   for (let i = 0; i < NUM_TEAMS; i++) {
     const dropdown = document.getElementById(`team${i + 1}-dropdown`);
     if (dropdown) {
-      dropdown.value = teamNames[i] && getAllTeamNames().includes(convertAmpersands(teamNames[i])) ? convertAmpersands(teamNames[i]) : '';
+      dropdown.value = teamNames[i] && getAllTeamNames().includes(teamNames[i]) ? teamNames[i] : '';
       lastDropdownValues[i] = dropdown.value;
       dropdown.addEventListener('change', (e) => {
         if (e.target.value === 'Guests') {
@@ -691,7 +688,7 @@ function parseLegacyFile(text) {
     console.log('Loaded event date:', loadedEventDate);
     setEventDateDisplay(loadedEventDate || getTodayString());
     
-    // Team names
+    // Team names - convert double ampersands to single ampersands once here
     let fileTeamNames = [];
     for (let i = 0; i < NUM_TEAMS; i++) {
       let teamName = nonEmptyLines[1 + i] || '';
@@ -705,9 +702,7 @@ function parseLegacyFile(text) {
     guestNames = [];
     for (let name of fileTeamNames) {
       if (name && !TEAM_NAMES.includes(name) && !guestNames.includes(name)) {
-        // Convert double ampersands to single ampersands for guest names too
-        let convertedName = name.replace(/&&/g, '&');
-        guestNames.push(convertedName);
+        guestNames.push(name);
       }
     }
     guestNames.sort((a, b) => a.localeCompare(b));
