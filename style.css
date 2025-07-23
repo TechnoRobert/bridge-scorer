@@ -125,11 +125,12 @@ button:hover {
 .score-label-row {
   display: flex;
   align-items: center;
-  gap: 0.6em; /* Slightly tighter gap to move 1x and 2 left */
+  gap: 0.2em; /* Much tighter gap to force change */
   margin-bottom: 0.2em;
   margin-left: 0.2em; /* Match the margin-left in score-row exactly */
   font-size: 1em;
   height: 2.1em;
+  border: 1px solid red; /* Debug border to see if CSS is applying */
 }
 .score-label {
   display: inline-block;
