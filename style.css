@@ -126,9 +126,9 @@ button:hover {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  gap: 0.25em; /* Much tighter gap between labels */
+  gap: 0.8em; /* Match the gap in score-row */
   margin-bottom: 0.2em;
-  margin-left: -0.2em; /* aligning '0' w first col of radio buttons */
+  margin-left: 0.2em; /* Match the margin-left in score-row */
   font-size: 1em;
   height: 2.1em;
 }
@@ -143,7 +143,7 @@ button:hover {
   display: inline-block;
   width: 4em;
   text-align: left;
-  margin-left: 0.5em;
+  margin-left: 0;
   font-weight: bold;
 }
 .team-num-label {
