@@ -103,19 +103,22 @@ function renderScoreEntry(boardNum = 1) {
 
 function renderBoardScores() {
   const boardScores = document.getElementById('board-scores');
+  if (!boardScores) return;
+  
   let html = '';
   html += `<table class="mono-table"><thead><tr>`;
   for (let b = 1; b <= NUM_BOARDS; b++) {
     html += `<th>${b}</th>`;
   }
   html += `</tr></thead><tbody>`;
+  
   const boardPairings = getBoardPairings();
   for (let t = 0; t < NUM_TEAMS; t++) {
     html += `<tr>`;
     for (let b = 1; b <= NUM_BOARDS; b++) {
-      const val = scores[b - 1][t];
+      const val = (scores[b - 1] && scores[b - 1][t]) ? scores[b - 1][t] : '';
       let style = '';
-      if (showPairings) {
+      if (showPairings && boardPairings[b - 1]) {
         // Find the pairing for this board
         let pairings = boardPairings[b - 1];
         if (pairings) {
@@ -316,9 +319,15 @@ function setupTeamDropdownListeners() {
   for (let i = 0; i < NUM_TEAMS; i++) {
     const dropdown = document.getElementById(`team${i + 1}-dropdown`);
     if (dropdown) {
-      dropdown.value = teamNames[i] && getAllTeamNames().includes(teamNames[i]) ? teamNames[i] : '';
+      const allTeamNames = getAllTeamNames();
+      dropdown.value = teamNames[i] && allTeamNames.includes(teamNames[i]) ? teamNames[i] : '';
       lastDropdownValues[i] = dropdown.value;
-      dropdown.addEventListener('change', (e) => {
+      
+      // Remove existing listener if it exists to prevent duplicates
+      const newDropdown = dropdown.cloneNode(true);
+      dropdown.parentNode.replaceChild(newDropdown, dropdown);
+      
+      newDropdown.addEventListener('change', (e) => {
         if (e.target.value === 'Guests') {
           if (!guestModalOpen) {
             guestModalOpen = true;
@@ -326,7 +335,7 @@ function setupTeamDropdownListeners() {
           }
         } else {
           teamNames[i] = e.target.value || `Team #${i + 1}`;
-          lastDropdownValues[i] = dropdown.value;
+          lastDropdownValues[i] = e.target.value;
           if (!guestModalOpen) renderAll();
         }
       });
@@ -460,6 +469,13 @@ function showErrorModal(message) {
   let msgDiv = document.getElementById('error-modal-msg');
   let okBtn = document.getElementById('error-modal-ok');
   const scoreEntry = document.getElementById('score-entry');
+  
+  // Remove any existing event listeners to prevent duplicates
+  if (okBtn) {
+    okBtn.replaceWith(okBtn.cloneNode(true));
+    okBtn = document.getElementById('error-modal-ok');
+  }
+  
   if (!modal) {
     // Create modal if not present
     modal = document.createElement('div');
@@ -476,6 +492,7 @@ function showErrorModal(message) {
     msgDiv = document.getElementById('error-modal-msg');
     okBtn = document.getElementById('error-modal-ok');
   }
+  
   // Position modal below and left of score-entry
   if (scoreEntry) {
     const rect = scoreEntry.getBoundingClientRect();
@@ -493,37 +510,61 @@ function showErrorModal(message) {
     modal.style.top = '50vh';
     modal.style.transform = 'translate(-50%, -50%)';
   }
-  msgDiv.innerHTML = message.replace(/\n/g, '<br>');
+  
+  if (msgDiv) {
+    msgDiv.innerHTML = message.replace(/\n/g, '<br>');
+  }
   modal.style.display = 'flex';
-  okBtn.focus();
-  function close() {
-    modal.style.display = 'none';
-    okBtn.removeEventListener('click', close);
-    okBtn.removeEventListener('keydown', keyHandler);
-    // Clear all radio buttons for current board
-    for (let i = 0; i < NUM_TEAMS; i++) {
-      const radios = document.getElementsByName(`team${i}-score`);
-      radios.forEach(radio => { radio.checked = false; });
+  if (okBtn) {
+    okBtn.focus();
+    
+    function close() {
+      modal.style.display = 'none';
+      // Clear all radio buttons for current board
+      for (let i = 0; i < NUM_TEAMS; i++) {
+        const radios = document.getElementsByName(`team${i}-score`);
+        radios.forEach(radio => { radio.checked = false; });
+      }
     }
+    
+    function keyHandler(e) {
+      if (e.key === 'Enter' || e.key === 'Escape') {
+        close();
+      }
+    }
+    
+    okBtn.addEventListener('click', close, { once: true });
+    okBtn.addEventListener('keydown', keyHandler, { once: true });
   }
-  function keyHandler(e) {
-    if (e.key === 'Enter' || e.key === 'Escape') close();
-  }
-  okBtn.addEventListener('click', close);
-  okBtn.addEventListener('keydown', keyHandler);
 }
 
 // --- Bridge error-checking function ---
 function validateBridgeScores(boardScores) {
   // boardScores: array of 6 strings ("0", "x", "1", "1x", "2")
+  if (!boardScores || boardScores.length !== NUM_TEAMS) {
+    return 'Invalid number of team scores.';
+  }
+  
   const SCORE_MAP = { '0': 0, 'x': 0.5, '1': 1, '1x': 1.5, '2': 2 };
   const nums = boardScores.map(val => SCORE_MAP[val] ?? NaN);
   if (nums.some(isNaN)) return 'All teams must have a valid score.\n\nPlease re-score the board.';
 
   // Pairings for this board
-  const boardPairings = getBoardPairings()[currentBoardNum - 1];
+  const allBoardPairings = getBoardPairings();
+  if (currentBoardNum < 1 || currentBoardNum > allBoardPairings.length) {
+    return 'Invalid board number.';
+  }
+  
+  const boardPairings = allBoardPairings[currentBoardNum - 1];
+  if (!boardPairings) {
+    return 'No pairings found for this board.';
+  }
+  
   for (let i = 0; i < boardPairings.length; i++) {
     const [a, b] = boardPairings[i];
+    if (a < 1 || a > NUM_TEAMS || b < 1 || b > NUM_TEAMS) {
+      return `Invalid team numbers in pairing: ${a}, ${b}`;
+    }
     const sum = nums[a - 1] + nums[b - 1];
     if (Math.abs(sum - 2.0) > 0.001) return `The scores of\nTeams ${a} and ${b} must total 2.0.\n\nPlease re-score the board.`;
   }
@@ -600,7 +641,6 @@ function getSaveText() {
 }
 
 async function saveAsFile() {
-  console.log('Save As... button clicked');
   let defaultName = `Bridge scores ${getTodayString().replace(/\//g, '-')}.txt`;
   if (window.showSaveFilePicker) {
     // File System Access API
@@ -626,7 +666,6 @@ async function saveAsFile() {
 }
 
 async function saveFile() {
-  console.log('Save button clicked');
   if (lastFileHandle && window.showSaveFilePicker) {
     const writable = await lastFileHandle.createWritable();
     await writable.write(getSaveText());
@@ -637,28 +676,40 @@ async function saveFile() {
 }
 
 function parseLegacyFile(text) {
-  let lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
-  if (lines.length < 147) throw new Error('File too short.');
+  let lines = text.split(/\r?\n/);
+  // Don't filter empty lines initially - we need to preserve the structure
+  if (lines.length < 147) throw new Error(`File too short. Expected at least 147 lines, got ${lines.length}.`);
+  
   // Date
   loadedEventDate = lines[0] || null;
   setEventDateDisplay(loadedEventDate || getTodayString());
+  
   // Team names
   let fileTeamNames = [];
-  for (let i = 0; i < NUM_TEAMS; i++) fileTeamNames.push(lines[1 + i] || '');
+  for (let i = 0; i < NUM_TEAMS; i++) {
+    fileTeamNames.push(lines[1 + i] || '');
+  }
+  
   // Add any new team names to dropdowns (and guestNames if not in TEAM_NAMES)
   guestNames = [];
   for (let name of fileTeamNames) {
-    if (name && !TEAM_NAMES.includes(name) && !guestNames.includes(name)) {
+    if (name && name.trim() && !TEAM_NAMES.includes(name) && !guestNames.includes(name)) {
       guestNames.push(name);
     }
   }
   guestNames.sort((a, b) => a.localeCompare(b));
-  for (let i = 0; i < NUM_TEAMS; i++) teamNames[i] = fileTeamNames[i];
+  for (let i = 0; i < NUM_TEAMS; i++) {
+    teamNames[i] = fileTeamNames[i] || `Team #${i + 1}`;
+  }
+  
   // Board numbers (lines 7-26) are ignored
   // Scores
   let idx = 27;
   for (let t = 0; t < NUM_TEAMS; t++) {
     for (let b = 0; b < NUM_BOARDS; b++) {
+      if (idx >= lines.length) {
+        throw new Error(`File format error: Missing score data at line ${idx + 1}.`);
+      }
       let val = lines[idx++] || '';
       // Convert 0.5 to 'x' and 1.5 to '1x' for display
       if (val === '0.5') val = 'x';
