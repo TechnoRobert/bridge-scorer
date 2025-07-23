@@ -655,14 +655,28 @@ async function saveFile() {
 }
 
 function parseLegacyFile(text) {
-  let lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
-  if (lines.length < 147) throw new Error('File too short.');
+  // Don't filter out empty lines - they're part of the expected format
+  let lines = text.split(/\r?\n/);
+  
+  // More flexible validation - check if we have at least the minimum structure
+  if (lines.length < 27) {
+    throw new Error(`File too short. Expected at least 27 lines (date + 6 team names + 20 board numbers), got ${lines.length}.`);
+  }
+  
+  // For backward compatibility, if file has exactly the expected 147 lines, use strict parsing
+  // Otherwise, use flexible parsing that handles files with different amounts of score data
+  const hasFullScoreData = lines.length >= 147;
+  
   // Date
   loadedEventDate = lines[0] || null;
   setEventDateDisplay(loadedEventDate || getTodayString());
-  // Team names
+  
+  // Team names (lines 1-6)
   let fileTeamNames = [];
-  for (let i = 0; i < NUM_TEAMS; i++) fileTeamNames.push(lines[1 + i] || '');
+  for (let i = 0; i < NUM_TEAMS; i++) {
+    fileTeamNames.push(lines[1 + i] || '');
+  }
+  
   // Add any new team names to dropdowns (and guestNames if not in TEAM_NAMES)
   guestNames = [];
   for (let name of fileTeamNames) {
@@ -672,17 +686,24 @@ function parseLegacyFile(text) {
   }
   guestNames.sort((a, b) => a.localeCompare(b));
   for (let i = 0; i < NUM_TEAMS; i++) teamNames[i] = fileTeamNames[i];
+  
   // Board numbers (lines 7-26) are ignored
-  // Scores
-  let idx = 27;
-  for (let t = 0; t < NUM_TEAMS; t++) {
-    for (let b = 0; b < NUM_BOARDS; b++) {
-      let val = lines[idx++] || '';
-      // Convert 0.5 to 'x' and 1.5 to '1x' for display
-      if (val === '0.5') val = 'x';
-      if (val === '1.5') val = '1x';
-      scores[b][t] = val;
+  
+  // Scores - only parse if we have enough data
+  if (hasFullScoreData) {
+    let idx = 27;
+    for (let t = 0; t < NUM_TEAMS; t++) {
+      for (let b = 0; b < NUM_BOARDS; b++) {
+        let val = lines[idx++] || '';
+        // Convert 0.5 to 'x' and 1.5 to '1x' for display
+        if (val === '0.5') val = 'x';
+        if (val === '1.5') val = '1x';
+        scores[b][t] = val;
+      }
     }
+  } else {
+    // Clear existing scores if file doesn't have score data
+    scores = Array.from({ length: NUM_BOARDS }, () => Array(NUM_TEAMS).fill(""));
   }
 }
 
@@ -693,37 +714,97 @@ function openFile() {
   input.onchange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    
     const reader = new FileReader();
     reader.onload = (evt) => {
       try {
-        parseLegacyFile(evt.target.result);
+        const content = evt.target.result;
+        parseLegacyFile(content);
         renderAll();
       } catch (err) {
-        const lines = evt.target.result.split(/\r?\n/);
+        const lines = evt.target.result ? evt.target.result.split(/\r?\n/) : [];
         showErrorModal('Failed to open file.\n' + err.message + `\n(Line count: ${lines.length})`);
       }
+      // Clear the input to allow selecting the same file again
       input.value = '';
     };
-    reader.readAsText(file);
+    
+    reader.onerror = () => {
+      showErrorModal('Failed to read file.\nPlease make sure the file is a valid text file.');
+      input.value = '';
+    };
+    
+    // Read as text with UTF-8 encoding for better compatibility
+    reader.readAsText(file, 'UTF-8');
   };
   input.click();
 }
 
 // --- Download Logic ---
-function downloadFile() {
+async function downloadFile() {
   let defaultName = `Bridge scores ${getTodayString().replace(/\//g, '-')}.txt`;
-  const blob = new Blob([getSaveText()], { type: 'text/plain' });
+  const content = getSaveText();
+  
+  // Try modern File System Access API first (Chrome 86+)
+  if (window.showSaveFilePicker) {
+    try {
+      const handle = await window.showSaveFilePicker({
+        suggestedName: defaultName,
+        types: [{ 
+          description: 'Text Files', 
+          accept: { 'text/plain': ['.txt'] } 
+        }]
+      });
+      const writable = await handle.createWritable();
+      await writable.write(content);
+      await writable.close();
+      return;
+    } catch (err) {
+      // User cancelled or API not fully supported, fall back to blob download
+      if (err.name !== 'AbortError') {
+        console.warn('File System Access API failed:', err);
+      }
+    }
+  }
+  
+  // Fallback to blob download with enhanced cross-browser support
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  
+  // Try navigator.msSaveBlob for Internet Explorer/Edge Legacy
+  if (navigator.msSaveBlob) {
+    navigator.msSaveBlob(blob, defaultName);
+    return;
+  }
+  
+  // Standard blob download approach with better cleanup
+  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
+  a.style.display = 'none';
+  a.href = url;
   a.download = defaultName;
+  
+  // Add to DOM, click, and clean up
   document.body.appendChild(a);
   a.click();
-  setTimeout(() => { document.body.removeChild(a); }, 100);
+  
+  // Clean up with longer timeout for Safari compatibility
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 250);
 }
 
 // --- Attach Download/Open listeners after DOM is loaded ---
 window.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('download').addEventListener('click', downloadFile);
+  document.getElementById('download').addEventListener('click', async (e) => {
+    e.preventDefault();
+    try {
+      await downloadFile();
+    } catch (err) {
+      console.error('Download failed:', err);
+      showErrorModal('Download failed.\n' + err.message);
+    }
+  });
   document.getElementById('open').addEventListener('click', openFile);
   setEventDate();
   renderAll();
