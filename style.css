@@ -126,7 +126,7 @@ button:hover {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  gap: 0.8em; /* Match the gap in score-row */
+  gap: 0.5em; /* Tighter gap for headers */
   margin-bottom: 0.2em;
   margin-left: 0.2em; /* Match the margin-left in score-row */
   font-size: 1em;
