@@ -700,7 +700,9 @@ function parseLegacyFile(text) {
     guestNames = [];
     for (let name of fileTeamNames) {
       if (name && !TEAM_NAMES.includes(name) && !guestNames.includes(name)) {
-        guestNames.push(name);
+        // Convert double ampersands to single ampersands for guest names too
+        let convertedName = name.replace(/&&/g, '&');
+        guestNames.push(convertedName);
       }
     }
     guestNames.sort((a, b) => a.localeCompare(b));
