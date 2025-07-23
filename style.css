@@ -130,7 +130,6 @@ button:hover {
   margin-left: 0.2em; /* Match the margin-left in score-row exactly */
   font-size: 1em;
   height: 2.1em;
-  border: 1px solid red; /* Debug border to see if CSS is applying */
 }
 .score-label {
   display: inline-block;
