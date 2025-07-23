@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Bridge Scorer Fixes</title>
+    <style>body { font-family: Arial; margin: 20px; }</style>
+</head>
+<body>
+    <h1>Testing Bridge Scorer Fixes</h1>
+    <p><strong>Test 1:</strong> Load the main application</p>
+    <iframe src="http://localhost:8000/" width="100%" height="600" style="border: 1px solid #ccc;"></iframe>
+    
+    <div style="margin-top: 20px;">
+        <h2>Expected Behaviors After Fixes:</h2>
+        <ol>
+            <li><strong>Radio Button Persistence:</strong> Enter scores for Board 1, switch to Board 2, then back to Board 1. The scores should still be visible.</li>
+            <li><strong>Team Names:</strong> All 6 teams should have proper dropdown options without array index issues.</li>
+            <li><strong>Error Checking:</strong> Score validation should work correctly for paired teams.</li>
+            <li><strong>Guests Option:</strong> "Guests" should still appear in dropdowns even though removed from TEAM_NAMES array.</li>
+        </ol>
+    </div>
+</body>
+</html>

@@ -2,7 +2,7 @@
 const NUM_TEAMS = 6;
 const NUM_BOARDS = 20;
 const TEAM_NAMES = [
-  "Bordenets", "Clarks", "Jake & Rick", "Leedoms", "Rudegeairs", "Vaessens", "Guests"
+  "Bordenets", "Clarks", "Jake & Rick", "Leedoms", "Rudegeairs", "Vaessens"
 ];
 const SCORE_LABELS = ["0", "x", "1", "1x", "2"];
 
@@ -46,12 +46,12 @@ function getBoardPairings() {
   ];
   let boardPairings = [];
   for (let r = 0; r < rounds.length; r++) {
-    for (let b = 0; b < 4; b++) {
+    for (let boardInRound = 0; boardInRound < 4; boardInRound++) {
       let pairings = [];
       for (let p = 0; p < rounds[r].length; p++) {
-        let [a, b_] = rounds[r][p];
-        let color = (a === 6 || b_ === 6) ? HOST_COLOR : PAIRING_COLORS[p];
-        pairings.push([a, b_, color]);
+        let [teamA, teamB] = rounds[r][p];
+        let color = (teamA === 6 || teamB === 6) ? HOST_COLOR : PAIRING_COLORS[p];
+        pairings.push([teamA, teamB, color]);
       }
       boardPairings.push(pairings);
     }
@@ -88,9 +88,11 @@ function renderScoreEntry(boardNum = 1) {
   const allNames = getAllTeamNames();
   for (let i = 0; i < NUM_TEAMS; i++) {
     let row = `<div class="score-row">`;
+    const storedScore = scores[boardNum - 1][i]; // Get stored score for this team on this board
     SCORE_LABELS.forEach((label, idx) => {
-      // Always render as unchecked
-      row += `<input type="radio" name="team${i}-score" value="${label}">`;
+      // Check the radio button if it matches the stored score
+      const checked = storedScore === label ? ' checked' : '';
+      row += `<input type="radio" name="team${i}-score" value="${label}"${checked}>`;
     });
     let options = `<option value="">Team #${i + 1}</option>` +
       allNames.map(name => `<option value="${name}"${teamNames[i] === name ? ' selected' : ''}>${name}</option>`).join('');
@@ -120,8 +122,8 @@ function renderBoardScores() {
         let pairings = boardPairings[b - 1];
         if (pairings) {
           for (let p = 0; p < pairings.length; p++) {
-            let [a, b_, color] = pairings[p];
-            if (a === t + 1 || b_ === t + 1) {
+            let [teamA, teamB, color] = pairings[p];
+            if (teamA === t + 1 || teamB === t + 1) {
               style = `background:${color};`;
               break;
             }
@@ -523,17 +525,17 @@ function validateBridgeScores(boardScores) {
   // Pairings for this board
   const boardPairings = getBoardPairings()[currentBoardNum - 1];
   for (let i = 0; i < boardPairings.length; i++) {
-    const [a, b] = boardPairings[i];
-    const sum = nums[a - 1] + nums[b - 1];
-    if (Math.abs(sum - 2.0) > 0.001) return `The scores of\nTeams ${a} and ${b} must total 2.0.\n\nPlease re-score the board.`;
+    const [teamA, teamB] = boardPairings[i];
+    const sum = nums[teamA - 1] + nums[teamB - 1];
+    if (Math.abs(sum - 2.0) > 0.001) return `The scores of\nTeams ${teamA} and ${teamB} must total 2.0.\n\nPlease re-score the board.`;
   }
 
   // NS/EW totals: for each pairing, first team is NS, second is EW
   let nsTotal = 0, ewTotal = 0;
   for (let i = 0; i < boardPairings.length; i++) {
-    const [a, b] = boardPairings[i];
-    nsTotal += nums[a - 1];
-    ewTotal += nums[b - 1];
+    const [teamA, teamB] = boardPairings[i];
+    nsTotal += nums[teamA - 1];
+    ewTotal += nums[teamB - 1];
   }
   if (Math.abs(nsTotal - 3.0) > 0.001 || Math.abs(ewTotal - 3.0) > 0.001) {
     return `Pair-scores are incorrect.\nTotal for all N/S's is ${nsTotal}.\nTotal for all E/W's is ${ewTotal}.\nEach direction should have three points.\n\nPlease re-score the board.`;
