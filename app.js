@@ -238,12 +238,28 @@ function renderStandings() {
 
 function renderAll() {
   renderScoreEntry(currentBoardNum);
+  setRadioButtonStates(currentBoardNum); // Add this line to set radio buttons based on stored scores
   renderBoardScores();
   renderStandings();
   setupBoardControls();
   setupScoreEntryListeners();
   setupTeamDropdownListeners();
   setupPairingsToggle();
+}
+
+// Add this new function to set radio button states based on stored scores
+function setRadioButtonStates(boardNum) {
+  for (let i = 0; i < NUM_TEAMS; i++) {
+    const storedScore = scores[boardNum - 1][i];
+    if (storedScore) {
+      const radios = document.getElementsByName(`team${i}-score`);
+      radios.forEach(radio => {
+        if (radio.value === storedScore) {
+          radio.checked = true;
+        }
+      });
+    }
+  }
 }
 
 function setupBoardControls() {
@@ -500,11 +516,13 @@ function showErrorModal(message) {
     modal.style.display = 'none';
     okBtn.removeEventListener('click', close);
     okBtn.removeEventListener('keydown', keyHandler);
-    // Clear all radio buttons for current board
+    // Clear all radio buttons and restore previous valid state
     for (let i = 0; i < NUM_TEAMS; i++) {
       const radios = document.getElementsByName(`team${i}-score`);
       radios.forEach(radio => { radio.checked = false; });
     }
+    // Restore the previous valid state for this board
+    setRadioButtonStates(currentBoardNum);
   }
   function keyHandler(e) {
     if (e.key === 'Enter' || e.key === 'Escape') close();
