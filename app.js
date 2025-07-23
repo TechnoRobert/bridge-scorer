@@ -580,23 +580,44 @@ function setEventDateDisplay(dateStr) {
 }
 
 function getSaveText() {
-  // Line 1: date
-  let lines = [getTodayString()];
-  // Lines 2-7: team names
-  for (let i = 0; i < NUM_TEAMS; i++) lines.push(teamNames[i] || '');
-  // Lines 8-27: board numbers 1-20
-  for (let i = 1; i <= NUM_BOARDS; i++) lines.push(String(i));
-  // Lines 28-147: scores for each team, 20 lines per team
-  for (let t = 0; t < NUM_TEAMS; t++) {
-    for (let b = 0; b < NUM_BOARDS; b++) {
-      let val = scores[b][t];
-      // Convert 'x' to 0.5 and '1x' to 1.5 for file output
-      if (val === 'x') val = '0.5';
-      if (val === '1x') val = '1.5';
-      lines.push(val === undefined ? '' : val);
+  console.log('getSaveText called');
+  try {
+    // Line 1: date
+    let lines = [getTodayString()];
+    console.log('Date line:', lines[0]);
+    
+    // Lines 2-7: team names
+    for (let i = 0; i < NUM_TEAMS; i++) {
+      const teamName = teamNames[i] || '';
+      lines.push(teamName);
+      console.log(`Team ${i+1} name: "${teamName}"`);
     }
+    
+    // Lines 8-27: board numbers 1-20
+    for (let i = 1; i <= NUM_BOARDS; i++) {
+      lines.push(String(i));
+    }
+    console.log('Board numbers added');
+    
+    // Lines 28-147: scores for each team, 20 lines per team
+    for (let t = 0; t < NUM_TEAMS; t++) {
+      for (let b = 0; b < NUM_BOARDS; b++) {
+        let val = scores[b][t];
+        // Convert 'x' to 0.5 and '1x' to 1.5 for file output
+        if (val === 'x') val = '0.5';
+        if (val === '1x') val = '1.5';
+        lines.push(val === undefined ? '' : val);
+      }
+    }
+    console.log('Scores added, total lines:', lines.length);
+    
+    const result = lines.join('\r\n');
+    console.log('Final text length:', result.length);
+    return result;
+  } catch (error) {
+    console.error('Error in getSaveText:', error);
+    throw error;
   }
-  return lines.join('\r\n');
 }
 
 async function saveAsFile() {
@@ -637,34 +658,70 @@ async function saveFile() {
 }
 
 function parseLegacyFile(text) {
-  let lines = text.split(/\r?\n/).filter(line => line.trim() !== '');
-  if (lines.length < 147) throw new Error('File too short.');
-  // Date
-  loadedEventDate = lines[0] || null;
-  setEventDateDisplay(loadedEventDate || getTodayString());
-  // Team names
-  let fileTeamNames = [];
-  for (let i = 0; i < NUM_TEAMS; i++) fileTeamNames.push(lines[1 + i] || '');
-  // Add any new team names to dropdowns (and guestNames if not in TEAM_NAMES)
-  guestNames = [];
-  for (let name of fileTeamNames) {
-    if (name && !TEAM_NAMES.includes(name) && !guestNames.includes(name)) {
-      guestNames.push(name);
-    }
+  console.log('Parsing legacy file, text length:', text.length);
+  
+  // Split by both \r\n and \n to handle different line endings
+  let lines = text.split(/\r?\n/);
+  console.log('Raw lines after split:', lines.length);
+  
+  // Filter out empty lines but keep track of original structure
+  let nonEmptyLines = lines.filter(line => line.trim() !== '');
+  console.log('Non-empty lines:', nonEmptyLines.length);
+  
+  // Check if this might be a different file format
+  if (nonEmptyLines.length === 1) {
+    console.log('Single line file detected, content:', nonEmptyLines[0]);
+    throw new Error('File appears to be in a different format. Expected 147+ lines, got 1 line.');
   }
-  guestNames.sort((a, b) => a.localeCompare(b));
-  for (let i = 0; i < NUM_TEAMS; i++) teamNames[i] = fileTeamNames[i];
-  // Board numbers (lines 7-26) are ignored
-  // Scores
-  let idx = 27;
-  for (let t = 0; t < NUM_TEAMS; t++) {
-    for (let b = 0; b < NUM_BOARDS; b++) {
-      let val = lines[idx++] || '';
-      // Convert 0.5 to 'x' and 1.5 to '1x' for display
-      if (val === '0.5') val = 'x';
-      if (val === '1.5') val = '1x';
-      scores[b][t] = val;
+  
+  if (nonEmptyLines.length < 147) {
+    console.log('File too short. Expected 147 lines, got:', nonEmptyLines.length);
+    console.log('First few lines:', nonEmptyLines.slice(0, 5));
+    throw new Error(`File too short. Expected at least 147 lines, got ${nonEmptyLines.length} lines.`);
+  }
+  
+  try {
+    // Date
+    loadedEventDate = nonEmptyLines[0] || null;
+    console.log('Loaded event date:', loadedEventDate);
+    setEventDateDisplay(loadedEventDate || getTodayString());
+    
+    // Team names
+    let fileTeamNames = [];
+    for (let i = 0; i < NUM_TEAMS; i++) {
+      const teamName = nonEmptyLines[1 + i] || '';
+      fileTeamNames.push(teamName);
+      console.log(`Team ${i+1} name from file: "${teamName}"`);
     }
+    
+    // Add any new team names to dropdowns (and guestNames if not in TEAM_NAMES)
+    guestNames = [];
+    for (let name of fileTeamNames) {
+      if (name && !TEAM_NAMES.includes(name) && !guestNames.includes(name)) {
+        guestNames.push(name);
+      }
+    }
+    guestNames.sort((a, b) => a.localeCompare(b));
+    console.log('Guest names found:', guestNames);
+    
+    for (let i = 0; i < NUM_TEAMS; i++) teamNames[i] = fileTeamNames[i];
+    
+    // Board numbers (lines 7-26) are ignored
+    // Scores
+    let idx = 27;
+    for (let t = 0; t < NUM_TEAMS; t++) {
+      for (let b = 0; b < NUM_BOARDS; b++) {
+        let val = nonEmptyLines[idx++] || '';
+        // Convert 0.5 to 'x' and 1.5 to '1x' for display
+        if (val === '0.5') val = 'x';
+        if (val === '1.5') val = '1x';
+        scores[b][t] = val;
+      }
+    }
+    console.log('File parsed successfully');
+  } catch (error) {
+    console.error('Error during file parsing:', error);
+    throw error;
   }
 }
 
@@ -693,20 +750,79 @@ function openFile() {
 
 // --- Download Logic ---
 function downloadFile() {
-  let defaultName = `Bridge scores ${getTodayString().replace(/\//g, '-')}.txt`;
-  const blob = new Blob([getSaveText()], { type: 'text/plain' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = defaultName;
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(() => { document.body.removeChild(a); }, 100);
+  console.log('Download function called');
+  try {
+    let defaultName = `Bridge scores ${getTodayString().replace(/\//g, '-')}.txt`;
+    const saveText = getSaveText();
+    console.log('Save text generated, length:', saveText.length);
+    
+    // Try to use the File System Access API first (Chrome/Edge)
+    if (window.showSaveFilePicker) {
+      console.log('Using File System Access API');
+      window.showSaveFilePicker({
+        suggestedName: defaultName,
+        types: [{ description: 'Text Files', accept: { 'text/plain': ['.txt'] } }]
+      }).then(handle => {
+        handle.createWritable().then(writable => {
+          writable.write(saveText);
+          writable.close();
+          console.log('File saved using File System Access API');
+        });
+      }).catch(error => {
+        console.log('File System Access API failed, falling back to download:', error);
+        fallbackDownload(saveText, defaultName);
+      });
+    } else {
+      console.log('File System Access API not available, using fallback download');
+      fallbackDownload(saveText, defaultName);
+    }
+  } catch (error) {
+    console.error('Download error:', error);
+    alert('Download failed: ' + error.message);
+  }
+}
+
+function fallbackDownload(saveText, defaultName) {
+  try {
+    const blob = new Blob([saveText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = defaultName;
+    a.style.display = 'none'; // Hide the link
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url); // Clean up the URL object
+    console.log('Fallback download initiated successfully');
+  } catch (error) {
+    console.error('Fallback download error:', error);
+    alert('Download failed: ' + error.message);
+  }
 }
 
 // --- Attach Download/Open listeners after DOM is loaded ---
 window.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('download').addEventListener('click', downloadFile);
-  document.getElementById('open').addEventListener('click', openFile);
+  console.log('DOM loaded, setting up event listeners');
+  
+  const downloadBtn = document.getElementById('download');
+  const openBtn = document.getElementById('open');
+  
+  if (downloadBtn) {
+    console.log('Download button found, adding listener');
+    downloadBtn.addEventListener('click', downloadFile);
+  } else {
+    console.error('Download button not found!');
+  }
+  
+  if (openBtn) {
+    console.log('Open button found, adding listener');
+    openBtn.addEventListener('click', openFile);
+  } else {
+    console.error('Open button not found!');
+  }
+  
   setEventDate();
   renderAll();
+  console.log('Initialization complete');
 }); 

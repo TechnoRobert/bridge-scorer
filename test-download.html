@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Download Test</title>
+</head>
+<body>
+    <h1>Download Test</h1>
+    <button id="test-download">Test Download</button>
+    <div id="status"></div>
+
+    <script>
+        document.getElementById('test-download').addEventListener('click', function() {
+            const status = document.getElementById('status');
+            status.textContent = 'Testing download...';
+            
+            try {
+                // Test the getSaveText function logic
+                const NUM_TEAMS = 6;
+                const NUM_BOARDS = 20;
+                const teamNames = Array.from({ length: NUM_TEAMS }, (_, i) => `Team #${i + 1}`);
+                const scores = Array.from({ length: NUM_BOARDS }, () => Array(NUM_TEAMS).fill(""));
+                
+                function getTodayString() {
+                    const now = new Date();
+                    const mm = String(now.getMonth() + 1).padStart(2, '0');
+                    const dd = String(now.getDate()).padStart(2, '0');
+                    const yyyy = now.getFullYear();
+                    return `${mm}/${dd}/${yyyy}`;
+                }
+                
+                function getSaveText() {
+                    let lines = [getTodayString()];
+                    for (let i = 0; i < NUM_TEAMS; i++) lines.push(teamNames[i] || '');
+                    for (let i = 1; i <= NUM_BOARDS; i++) lines.push(String(i));
+                    for (let t = 0; t < NUM_TEAMS; t++) {
+                        for (let b = 0; b < NUM_BOARDS; b++) {
+                            let val = scores[b][t];
+                            if (val === 'x') val = '0.5';
+                            if (val === '1x') val = '1.5';
+                            lines.push(val === undefined ? '' : val);
+                        }
+                    }
+                    return lines.join('\r\n');
+                }
+                
+                const saveText = getSaveText();
+                console.log('Save text length:', saveText.length);
+                console.log('First 10 lines:', saveText.split('\r\n').slice(0, 10));
+                
+                const blob = new Blob([saveText], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Bridge scores ${getTodayString().replace(/\//g, '-')}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                status.textContent = 'Download should have started! Check your downloads folder.';
+                status.style.color = 'green';
+                
+            } catch (error) {
+                status.textContent = 'Error: ' + error.message;
+                status.style.color = 'red';
+                console.error('Download error:', error);
+            }
+        });
+    </script>
+</body>
+</html> 
