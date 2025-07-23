@@ -661,8 +661,8 @@ function parseLegacyFile(text) {
   console.log('Parsing legacy file, text length:', text.length);
   
   // Split by both \r\n and \n to handle different line endings
-  let lines = text.split(/\r?\n/);
-  console.log('Raw lines after split:', lines.length);
+  let normalizedText = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  let lines = normalizedText.split('\n');  console.log('Raw lines after split:', lines.length);
   
   // Filter out empty lines but keep track of original structure
   let nonEmptyLines = lines.filter(line => line.trim() !== '');
