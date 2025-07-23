@@ -83,7 +83,7 @@ function renderScoreEntry(boardNum = 1) {
   SCORE_LABELS.forEach(label => {
     labelRow += `<span class="score-label">${label}</span>`;
   });
-  labelRow += '<span class="team-label" style="margin-left:0.5em;font-weight:bold;">Team</span></div>';
+  labelRow += '<span class="team-label">Team</span></div>';
   scoreEntry.innerHTML += labelRow;
 
   // Radio button rows with team number label and dropdown
