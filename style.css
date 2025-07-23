@@ -126,9 +126,9 @@ button:hover {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  gap: 0.2em; /* Much tighter gap for headers */
+  gap: 0.1em; /* Very tight gap for headers */
   margin-bottom: 0.2em;
-  margin-left: 0; /* Remove left margin to move headers left */
+  margin-left: -0.5em; /* Force headers to the left */
   font-size: 1em;
   height: 2.1em;
 }
