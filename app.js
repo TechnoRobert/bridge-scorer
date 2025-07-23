@@ -689,7 +689,9 @@ function parseLegacyFile(text) {
     // Team names
     let fileTeamNames = [];
     for (let i = 0; i < NUM_TEAMS; i++) {
-      const teamName = nonEmptyLines[1 + i] || '';
+      let teamName = nonEmptyLines[1 + i] || '';
+      // Convert double ampersands to single ampersands for display
+      teamName = teamName.replace(/&&/g, '&');
       fileTeamNames.push(teamName);
       console.log(`Team ${i+1} name from file: "${teamName}"`);
     }
