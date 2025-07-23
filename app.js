@@ -79,7 +79,7 @@ function renderScoreEntry(boardNum = 1) {
   `;
 
   // Label row for radio buttons + Team label above dropdowns
-  let labelRow = '<div class="score-label-row">';
+  let labelRow = '<div class="score-label-row" style="gap: 0.2em; margin-left: 0.2em;">';
   SCORE_LABELS.forEach(label => {
     labelRow += `<span class="score-label">${label}</span>`;
   });
