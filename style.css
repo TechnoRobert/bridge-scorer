@@ -59,7 +59,7 @@ section#score-entry {
 section#board-scores {
   flex: 1 1 0;
   overflow-x: auto;
-  margin-top: 5.65em; /* Increased to move Board Scores down further */
+  margin-top: 5.6em; /* Increased to move Board Scores down further */
 }
 
 /* Board Scores Table */
