@@ -59,7 +59,7 @@ section#score-entry {
 section#board-scores {
   flex: 1 1 0;
   overflow-x: auto;
-  margin-top: 5.8em; /* Increased to move Board Scores down further */
+  margin-top: 5.75em; /* Increased to move Board Scores down further */
 }
 
 /* Board Scores Table */
@@ -77,7 +77,7 @@ section#board-scores td {
   min-width: 2ch;
   font-size: 0.99em;
   letter-spacing: 0;
-  height: 2.0em;
+  height: 2.05em;
   vertical-align: middle;
 }
 section#board-scores th {
@@ -247,4 +247,4 @@ button:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
-} 
+}
