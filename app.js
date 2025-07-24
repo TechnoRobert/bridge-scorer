@@ -79,7 +79,7 @@ function renderScoreEntry(boardNum = 1) {
   `;
 
   // Label row for radio buttons + Team label above dropdowns
-  let labelRow = '<div style="display: flex; align-items: center; gap: 0.4em; margin-left: 0; margin-bottom: 0.2em; font-size: 1em; height: 2.1em;">';
+  let labelRow = '<div style="display: flex; align-items: center; gap: 0.5em; margin-left: 0; margin-bottom: 0.2em; font-size: 1em; height: 2.1em;">';
   SCORE_LABELS.forEach(label => {
     labelRow += `<span class="score-label" style="width: auto !important; margin-right: -0.2em !important;">${label}</span>`;
   });
@@ -587,20 +587,20 @@ function getSaveText() {
     // Line 1: date
     let lines = [getTodayString()];
     console.log('Date line:', lines[0]);
-    
+
     // Lines 2-7: team names
     for (let i = 0; i < NUM_TEAMS; i++) {
       const teamName = teamNames[i] || '';
       lines.push(teamName);
       console.log(`Team ${i+1} name: "${teamName}"`);
     }
-    
+
     // Lines 8-27: board numbers 1-20
     for (let i = 1; i <= NUM_BOARDS; i++) {
       lines.push(String(i));
     }
     console.log('Board numbers added');
-    
+
     // Lines 28-147: scores for each team, 20 lines per team
     for (let t = 0; t < NUM_TEAMS; t++) {
       for (let b = 0; b < NUM_BOARDS; b++) {
@@ -612,7 +612,7 @@ function getSaveText() {
       }
     }
     console.log('Scores added, total lines:', lines.length);
-    
+
     const result = lines.join('\r\n');
     console.log('Final text length:', result.length);
     return result;
@@ -661,33 +661,33 @@ async function saveFile() {
 
 function parseLegacyFile(text) {
   console.log('Parsing legacy file, text length:', text.length);
-  
+
   // Split by both \r\n and \n to handle different line endings
   let normalizedText = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
   let lines = normalizedText.split('\n');  console.log('Raw lines after split:', lines.length);
-  
+
   // Filter out empty lines but keep track of original structure
   let nonEmptyLines = lines.filter(line => line.trim() !== '');
   console.log('Non-empty lines:', nonEmptyLines.length);
-  
+
   // Check if this might be a different file format
   if (nonEmptyLines.length === 1) {
     console.log('Single line file detected, content:', nonEmptyLines[0]);
     throw new Error('File appears to be in a different format. Expected 147+ lines, got 1 line.');
   }
-  
+
   if (nonEmptyLines.length < 147) {
     console.log('File too short. Expected 147 lines, got:', nonEmptyLines.length);
     console.log('First few lines:', nonEmptyLines.slice(0, 5));
     throw new Error(`File too short. Expected at least 147 lines, got ${nonEmptyLines.length} lines.`);
   }
-  
+
   try {
     // Date
     loadedEventDate = nonEmptyLines[0] || null;
     console.log('Loaded event date:', loadedEventDate);
     setEventDateDisplay(loadedEventDate || getTodayString());
-    
+
     // Team names - convert double ampersands to single ampersands once here
     let fileTeamNames = [];
     for (let i = 0; i < NUM_TEAMS; i++) {
@@ -697,7 +697,7 @@ function parseLegacyFile(text) {
       fileTeamNames.push(teamName);
       console.log(`Team ${i+1} name from file: "${teamName}"`);
     }
-    
+
     // Add any new team names to dropdowns (and guestNames if not in TEAM_NAMES)
     guestNames = [];
     for (let name of fileTeamNames) {
@@ -707,9 +707,9 @@ function parseLegacyFile(text) {
     }
     guestNames.sort((a, b) => a.localeCompare(b));
     console.log('Guest names found:', guestNames);
-    
+
     for (let i = 0; i < NUM_TEAMS; i++) teamNames[i] = fileTeamNames[i];
-    
+
     // Board numbers (lines 7-26) are ignored
     // Scores
     let idx = 27;
@@ -759,7 +759,7 @@ function downloadFile() {
     let defaultName = `Bridge scores ${getTodayString().replace(/\//g, '-')}.txt`;
     const saveText = getSaveText();
     console.log('Save text generated, length:', saveText.length);
-    
+
     // Try to use the File System Access API first (Chrome/Edge)
     if (window.showSaveFilePicker) {
       console.log('Using File System Access API');
@@ -808,25 +808,25 @@ function fallbackDownload(saveText, defaultName) {
 // --- Attach Download/Open listeners after DOM is loaded ---
 window.addEventListener('DOMContentLoaded', () => {
   console.log('DOM loaded, setting up event listeners');
-  
+
   const downloadBtn = document.getElementById('download');
   const openBtn = document.getElementById('open');
-  
+
   if (downloadBtn) {
     console.log('Download button found, adding listener');
     downloadBtn.addEventListener('click', downloadFile);
   } else {
     console.error('Download button not found!');
   }
-  
+
   if (openBtn) {
     console.log('Open button found, adding listener');
     openBtn.addEventListener('click', openFile);
   } else {
     console.error('Open button not found!');
   }
-  
+
   setEventDate();
   renderAll();
   console.log('Initialization complete');
-}); 
+});
