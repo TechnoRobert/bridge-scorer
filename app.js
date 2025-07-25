@@ -35,6 +35,44 @@ function getAllTeamNames() {
   return all;
 }
 
+// Render Who Plays Who (WPW) display for current board
+function renderWPW(boardNum) {
+  const wpwDisplay = document.getElementById('wpw-display');
+  if (!wpwDisplay) return;
+  
+  const boardPairings = getBoardPairings();
+  const pairings = boardPairings[boardNum - 1];
+  
+  if (!pairings) {
+    wpwDisplay.style.display = 'none';
+    return;
+  }
+  
+  let wpwHtml = `
+    <div class="wpw-container">
+      <div class="wpw-title">Board ${boardNum}</div>
+      <div class="wpw-subtitle">North/South vs East/West</div>
+  `;
+  
+  pairings.forEach((pairing, index) => {
+    const [teamA, teamB] = pairing;
+    const teamAName = teamNames[teamA - 1] || `Team #${teamA}`;
+    const teamBName = teamNames[teamB - 1] || `Team #${teamB}`;
+    
+    wpwHtml += `
+      <div class="wpw-pairing">
+        <div class="wpw-team north-south">${teamAName}</div>
+        <div class="wpw-vs">vs.</div>
+        <div class="wpw-team east-west">${teamBName}</div>
+      </div>
+    `;
+  });
+  
+  wpwHtml += '</div>';
+  wpwDisplay.innerHTML = wpwHtml;
+  wpwDisplay.style.display = 'block';
+}
+
 // Returns an array of pairings for each board: [[teamA, teamB, color], ...]
 function getBoardPairings() {
   // Each round: 4 boards, 3 pairings
@@ -77,6 +115,16 @@ function renderScoreEntry(boardNum = 1) {
       <input type="range" id="board-slider" min="1" max="20" value="${boardNum}" style="vertical-align: middle; width: 120px; margin-left: 1em;">
     </h2>
   `;
+
+  // Render WPW display when pairings are shown
+  if (showPairings) {
+    renderWPW(boardNum);
+  } else {
+    const wpwDisplay = document.getElementById('wpw-display');
+    if (wpwDisplay) {
+      wpwDisplay.style.display = 'none';
+    }
+  }
 
   // Label row for radio buttons + Team label above dropdowns
   let labelRow = '<div style="display: flex; align-items: center; gap: 1.25em; margin-left: 0.6em; margin-bottom: 0.2em; font-size: 1em; height: 2.1em;">';
@@ -397,6 +445,14 @@ function setupPairingsToggle() {
       showPairings = !showPairings;
       btn.textContent = showPairings ? 'Hide Pairings' : 'Show Pairings';
       renderBoardScores();
+      if (showPairings) {
+        renderWPW(currentBoardNum);
+      } else {
+        const wpwDisplay = document.getElementById('wpw-display');
+        if (wpwDisplay) {
+          wpwDisplay.style.display = 'none';
+        }
+      }
     };
   }
 }

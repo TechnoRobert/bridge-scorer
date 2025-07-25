@@ -88,6 +88,22 @@ section#board-scores td {
   border-bottom: 1px solid #e0e0e0;
 }
 
+/* WPW Display Section */
+section#wpw-display {
+  background: #fff;
+  margin: 2rem 0 0 0;
+  max-width: 300px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: 1.5rem 2vw;
+  font-size: 1.1rem;
+  position: fixed;
+  top: 50%;
+  left: 2rem;
+  transform: translateY(-50%);
+  z-index: 100;
+}
+
 section#standings {
   background: #fff;
   margin: 2rem auto 0 auto;
@@ -156,6 +172,64 @@ button:hover {
   margin-left: 0;
   font-size: 1em;
   padding: 0.1em 0.3em;
+}
+
+/* WPW (Who Plays Who) display styling */
+.wpw-container {
+  margin: 1em 0;
+  padding: 1em;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  font-family: Arial, sans-serif;
+}
+
+.wpw-title {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 0.5em;
+  color: #495057;
+}
+
+.wpw-subtitle {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 1em;
+  color: #6c757d;
+  font-size: 0.9em;
+}
+
+.wpw-pairing {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5em;
+  padding: 0.3em;
+  background: white;
+  border-radius: 4px;
+  border: 1px solid #dee2e6;
+}
+
+.wpw-team {
+  flex: 1;
+  padding: 0.2em 0.5em;
+  font-weight: 500;
+}
+
+.wpw-team.north-south {
+  text-align: right;
+  padding-right: 1em;
+}
+
+.wpw-team.east-west {
+  text-align: left;
+  padding-left: 1em;
+}
+
+.wpw-vs {
+  font-weight: bold;
+  color: #6c757d;
+  margin: 0 0.5em;
 }
 
 .score-row {
