@@ -33,7 +33,7 @@ main#scoreboard {
 
 #board-scores-label {
   position: absolute;
-  top: 1.8em; /* Moved closer to board numbers */
+  top: 2.6em; /* Moved down closer to board numbers */
   left: 60%;  /* Adjust as needed to visually center over the board scores table */
   transform: translateX(-50%);
   font-size: 1.3em;
