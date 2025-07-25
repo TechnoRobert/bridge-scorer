@@ -98,7 +98,7 @@ section#wpw-display {
   padding: 1.5rem 2vw;
   font-size: 1.1rem;
   position: fixed;
-  top: 2rem;
+  top: 70%;
   left: 2rem;
   z-index: 100;
 }
