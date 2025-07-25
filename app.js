@@ -22,10 +22,10 @@ let errorCheckingEnabled = true;
 
 // Pairings mapping: for each board, an array of [teamA, teamB, colorClass]
 const PAIRING_COLORS = [
-  '#e6f7ff', // light blue (Pairing 1)
-  '#ffe6f7', // light magenta (Pairing 2)
+  '#ccffcc', // light green (Pairing 1)
+  '#ffffff', // white (Pairing 2)
 ];
-const HOST_COLOR = '#d1e7dd'; // Team 6 color (subtle green)
+const HOST_COLOR = '#ffccff'; // light magenta (Team 6 color)
 
 function getAllTeamNames() {
   // Merge and alphabetize, keep 'Guests' last
@@ -125,9 +125,9 @@ function renderScoreEntry(boardNum = 1) {
   const scoreEntry = document.getElementById('score-entry');
   scoreEntry.innerHTML = `
     <h2 style="display: flex; align-items: center; gap: 0.1em;">
-      Board
+      <span style="color: #99ccff;">Board</span>
       <span class="board-num-group">
-        #<span id="board-num" class="mono-board-num">${String(boardNum).padStart(2, ' ')}</span>
+        <span style="color: #99ccff;">#</span><span id="board-num" class="mono-board-num" style="color: #99ccff;">${String(boardNum).padStart(2, ' ')}</span>
         <span class="board-spinner">
           <button id="board-up" title="Next board">&#9650;</button>
           <button id="board-down" title="Previous board">&#9660;</button>
@@ -177,7 +177,7 @@ function renderBoardScores() {
   let html = '';
   html += `<table class="mono-table"><thead><tr>`;
   for (let b = 1; b <= NUM_BOARDS; b++) {
-    html += `<th>${b}</th>`;
+    html += `<th style="color: #99ccff;">${b}</th>`;
   }
   html += `</tr></thead><tbody>`;
   const boardPairings = getBoardPairings();
