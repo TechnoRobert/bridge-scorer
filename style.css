@@ -49,7 +49,7 @@ section#score-entry, section#board-scores {
   background: #ebebeb;
   border-radius: 8px;
   box-shadow: none;
-  padding: 1rem;
+  padding: 0.8rem;
 }
 
 section#score-entry {
@@ -60,7 +60,7 @@ section#score-entry {
 section#board-scores {
   flex: 1 1 0;
   overflow-x: auto;
-  margin-top: 5.4em; /* Increased to move Board Scores down further */
+  margin-top: 4.8em; /* Reduced to bring Board Scores up */
 }
 
 /* Board Scores Table */
@@ -103,11 +103,11 @@ section#wpw-display {
 
 section#standings {
   background: #ebebeb;
-  margin: 1.5rem auto 0 auto;
+  margin: 1rem auto 0 auto;
   max-width: 300px;
   border-radius: 8px;
   box-shadow: none;
-  padding: 1.5rem 2vw;
+  padding: 1rem 2vw;
   font-size: 1.1rem;
 }
 
@@ -115,7 +115,7 @@ footer {
   display: flex;
   justify-content: center;
   gap: 1rem;
-  padding: 1.5rem 0 2rem 0;
+  padding: 1rem 0 1.5rem 0;
   background: #f0f4f8;
   border-top: 2px solid #e0e0e0;
 }
