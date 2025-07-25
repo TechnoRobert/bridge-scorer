@@ -294,11 +294,7 @@ function renderStandings() {
     html += '</div>';
   } else {
     html += '<div style="display:flex; justify-content:center; width:100%;"><table class="mono-table" style="margin-top:1em; min-width:0; width:auto;">';
-    html += '<thead><tr>';
-    html += '<th style="text-align:left; max-width:7.5em; padding-right:0.7em;">Rank</th>';
-    html += '<th style="text-align:left; max-width:18ch; padding-right:0.7em;">Team</th>';
-    html += '<th style="text-align:left; min-width:6ch;">Score</th>';
-    html += '</tr></thead><tbody>';
+    html += '<tbody>';
     standings.forEach(row => {
       html += `<tr><td style="text-align:left; max-width:7.5em; padding-right:0.7em;">${row.ordinal}</td><td style="text-align:left; max-width:18ch; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding-right:0.7em;">${row.team}</td><td style="text-align:left; min-width:6ch;">${row.score} (${row.percentage}%)</td></tr>`;
     });
