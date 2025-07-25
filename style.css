@@ -98,9 +98,8 @@ section#wpw-display {
   padding: 1.5rem 2vw;
   font-size: 1.1rem;
   position: fixed;
-  top: 50%;
+  top: 2rem;
   left: 2rem;
-  transform: translateY(-50%);
   z-index: 100;
 }
 
