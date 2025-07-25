@@ -70,27 +70,28 @@ function renderWPW(boardNum) {
   
   wpwHtml += '</div>';
   wpwDisplay.innerHTML = wpwHtml;
-  
-  // Position WPW display like the error modal - below and left of score-entry
-  const scoreEntry = document.getElementById('score-entry');
-  if (scoreEntry) {
-    const rect = scoreEntry.getBoundingClientRect();
-    wpwDisplay.style.left = (window.scrollX + rect.left) + 'px';
-    wpwDisplay.style.top = (window.scrollY + rect.bottom + 12) + 'px'; // 12px below
-    wpwDisplay.style.width = 'auto';
-    wpwDisplay.style.height = 'auto';
-    wpwDisplay.style.right = '';
-    wpwDisplay.style.bottom = '';
-    wpwDisplay.style.position = 'absolute';
-  } else {
-    // fallback to fixed center
-    wpwDisplay.style.position = 'fixed';
-    wpwDisplay.style.left = '50vw';
-    wpwDisplay.style.top = '50vh';
-    wpwDisplay.style.transform = 'translate(-50%, -50%)';
-  }
-  
   wpwDisplay.style.display = 'block';
+  
+  // Position WPW display with a small delay to ensure DOM is stable
+  setTimeout(() => {
+    const scoreEntry = document.getElementById('score-entry');
+    if (scoreEntry) {
+      const rect = scoreEntry.getBoundingClientRect();
+      wpwDisplay.style.left = (window.scrollX + rect.left) + 'px';
+      wpwDisplay.style.top = (window.scrollY + rect.bottom + 12) + 'px'; // 12px below
+      wpwDisplay.style.width = 'auto';
+      wpwDisplay.style.height = 'auto';
+      wpwDisplay.style.right = '';
+      wpwDisplay.style.bottom = '';
+      wpwDisplay.style.position = 'absolute';
+    } else {
+      // fallback to fixed center
+      wpwDisplay.style.position = 'fixed';
+      wpwDisplay.style.left = '50vw';
+      wpwDisplay.style.top = '50vh';
+      wpwDisplay.style.transform = 'translate(-50%, -50%)';
+    }
+  }, 10);
 }
 
 // Returns an array of pairings for each board: [[teamA, teamB, color], ...]
