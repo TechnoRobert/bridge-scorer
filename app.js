@@ -125,9 +125,9 @@ function renderScoreEntry(boardNum = 1) {
   const scoreEntry = document.getElementById('score-entry');
   scoreEntry.innerHTML = `
     <h2 style="display: flex; align-items: center; gap: 0.1em;">
-      <span style="color: #a3ccf3;">Board</span>
+      <span style="color: #0099ff;">Board</span>
       <span class="board-num-group">
-        <span style="color: #a3ccf3;">#</span><span id="board-num" class="mono-board-num" style="color: #a3ccf3;">${String(boardNum).padStart(2, ' ')}</span>
+        <span style="color: #0099ff;">#</span><span id="board-num" class="mono-board-num" style="color: #0099ff;">${String(boardNum).padStart(2, ' ')}</span>
         <span class="board-spinner">
           <button id="board-up" title="Next board">&#9650;</button>
           <button id="board-down" title="Previous board">&#9660;</button>
@@ -177,7 +177,7 @@ function renderBoardScores() {
   let html = '';
   html += `<table class="mono-table"><thead><tr>`;
   for (let b = 1; b <= NUM_BOARDS; b++) {
-    html += `<th style="color: #a3ccf3;">${b}</th>`;
+    html += `<th style="color: #0099ff;">${b}</th>`;
   }
   html += `</tr></thead><tbody>`;
   const boardPairings = getBoardPairings();
