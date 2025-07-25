@@ -33,7 +33,7 @@ main#scoreboard {
 
 #board-scores-label {
   position: absolute;
-  top: 2.2em; /* Adjust as needed to align with the h2 line */
+  top: 1.8em; /* Moved closer to board numbers */
   left: 60%;  /* Adjust as needed to visually center over the board scores table */
   transform: translateX(-50%);
   font-size: 1.3em;
@@ -103,7 +103,7 @@ section#wpw-display {
 
 section#standings {
   background: #ebebeb;
-  margin: 2rem auto 0 auto;
+  margin: 1.5rem auto 0 auto;
   max-width: 300px;
   border-radius: 8px;
   box-shadow: none;

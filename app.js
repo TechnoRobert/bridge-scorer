@@ -284,7 +284,7 @@ function renderStandings() {
     }
   }
   let label = allBoardsScored ? 'Final Standings' : 'Standings';
-  let html = `<h2 style="margin-top:0;text-align:center;">${label}</h2>`;
+  let html = `<h2 style="margin-top:-0.5em;text-align:center;">${label}</h2>`;
   if (allZero) {
     html += '<div style="display:flex; flex-direction:column; align-items:center; margin-top:1em;">';
     for (let t = 0; t < NUM_TEAMS; t++) {
