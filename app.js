@@ -39,26 +39,26 @@ function getAllTeamNames() {
 function renderWPW(boardNum) {
   const wpwDisplay = document.getElementById('wpw-display');
   if (!wpwDisplay) return;
-  
+
   const boardPairings = getBoardPairings();
   const pairings = boardPairings[boardNum - 1];
-  
+
   if (!pairings) {
     wpwDisplay.style.display = 'none';
     return;
   }
-  
+
   let wpwHtml = `
     <div class="wpw-container">
       <div class="wpw-title">Board ${boardNum}</div>
       <div class="wpw-subtitle">North/South vs East/West</div>
   `;
-  
+
   pairings.forEach((pairing, index) => {
     const [teamA, teamB] = pairing;
     const teamAName = teamNames[teamA - 1] || `Team #${teamA}`;
     const teamBName = teamNames[teamB - 1] || `Team #${teamB}`;
-    
+
     wpwHtml += `
       <div class="wpw-pairing">
         <div class="wpw-team north-south">${teamAName}</div>
@@ -67,11 +67,11 @@ function renderWPW(boardNum) {
       </div>
     `;
   });
-  
+
   wpwHtml += '</div>';
   wpwDisplay.innerHTML = wpwHtml;
   wpwDisplay.style.display = 'block';
-  
+
   // Position WPW display with a small delay to ensure DOM is stable
   setTimeout(() => {
     const scoreEntry = document.getElementById('score-entry');
@@ -877,6 +877,37 @@ function fallbackDownload(saveText, defaultName) {
     alert('Download failed: ' + error.message);
   }
 }
+
+// --- About Modal Logic ---
+const aboutBtn = document.getElementById('about-btn');
+const aboutModal = document.getElementById('about-modal');
+const aboutOk = document.getElementById('about-modal-ok');
+
+if (aboutBtn && aboutModal && aboutOk) {
+  aboutBtn.addEventListener('click', () => {
+    aboutModal.style.display = 'flex';
+    aboutOk.focus();
+  });
+
+  function closeAboutModal() {
+    aboutModal.style.display = 'none';
+  }
+
+  aboutOk.addEventListener('click', closeAboutModal);
+
+  // Close modal when clicking outside
+  aboutModal.addEventListener('click', (e) => {
+    if (e.target === aboutModal) closeAboutModal();
+  });
+
+  // Close modal with Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && aboutModal.style.display === 'flex') {
+      closeAboutModal();
+    }
+  });
+}
+
 
 // --- Attach Download/Open listeners after DOM is loaded ---
 window.addEventListener('DOMContentLoaded', () => {

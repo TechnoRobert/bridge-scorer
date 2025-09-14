@@ -69,6 +69,7 @@
     <button id="open">Open</button>
     <button id="download">Download</button>
     <button id="settings-btn">Settings</button>
+    <button id="about-btn">About</button>
   </footer>
 
   <!-- Settings Modal -->
@@ -83,6 +84,27 @@
         <button id="settings-modal-ok">OK</button>
         <button id="settings-modal-cancel">Cancel</button>
       </div>
+    </div>
+  </div>
+
+  <!-- About Modal -->
+  <div id="about-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); z-index:1000; align-items:center; justify-content:center;">
+    <div style="background:#fff; padding:2em; border-radius:8px; box-shadow:0 2px 16px rgba(0,0,0,0.2); min-width:400px; max-width:90vw; margin:auto; display:flex; flex-direction:column; align-items:center;">
+      <img src="club.png" alt="Club" style="width: 64px; height: 64px; margin-bottom: 1em;">
+      <h2 style="margin-top:0; color:#2d3e50; text-align:center;">About Bob's Bridge Scorer</h2>
+      <div style="text-align:center; line-height:1.6; margin-bottom:1.5em; max-width:400px;">
+        <p style="margin-bottom:1em;"><strong>Version:</strong> Web Edition, 14 Sep 2025</p>
+        <p style="margin-bottom:1em;"><strong>Author:</strong> Bob Leedom (Bob@BobLeedom.com)</p>
+        <p style="margin-bottom:1em;">This web-based bridge scoring application supports six teams playing 20 boards in a duplicate bridge format. It features automatic error checking, pairings display, and comprehensive scoring calculations.</p>
+        <p style="margin-bottom:1em;">Originally developed as a MacOS application in the 1990s, this web version brings the same functionality to any modern browser, making it accessible for three-table bridge clubs everywhere.</p>
+        <p style="margin-bottom:0;"><strong>Features:</strong><br>
+        • Live scoring with error validation<br>
+        • Team management with guest support<br>
+        • Automatic standings calculation<br>
+        • Save/load functionality<br>
+        • Responsive design for all devices</p>
+      </div>
+      <button id="about-modal-ok">Close</button>
     </div>
   </div>
 
