@@ -2,7 +2,7 @@
 const NUM_TEAMS = 6;
 const NUM_BOARDS = 20;
 const TEAM_NAMES = [
-  "Bordenets", "Clarks", "Jake & Rick", "Leedoms", "Rudegeairs", "Vaessens", "Guests"
+  "Anne & Concetta", "Bill & Jake", "Bob & Jacque", "Charlie & Hedy", "Daniel & Dotty", "Jim & Linda", "Guests"
 ];
 const SCORE_LABELS = ["0", "x", "1", "1x", "2"];
 
